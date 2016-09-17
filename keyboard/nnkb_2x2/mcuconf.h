@@ -39,6 +39,17 @@
 #endif
 
 /*
+ * PWM driver system settings.
+ */
+#define KINETIS_PWM_USE_ADVANCED              FALSE
+#define KINETIS_PWM_USE_TIM1                  TRUE
+#define KINETIS_PWM_USE_TIM2                  FALSE
+#define KINETIS_PWM_USE_TIM3                  FALSE
+#define KINETIS_PWM_TIM1_IRQ_PRIORITY         3
+#define KINETIS_PWM_TIM2_IRQ_PRIORITY         3
+#define KINETIS_PWM_TIM3_IRQ_PRIORITY         3
+
+/*
  * SERIAL driver system settings.
  */
 #define KINETIS_SERIAL_USE_UART0              TRUE
