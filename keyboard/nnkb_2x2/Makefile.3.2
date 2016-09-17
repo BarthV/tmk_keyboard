@@ -8,8 +8,9 @@ TMK_DIR = ../../tmk_core
 TARGET_DIR = .
 
 # project specific files
-SRC =	matrix.c \
-	    led.c
+SRC = matrix.c \
+      led.c \
+      backlight.c
 
 ifdef KEYMAP
     SRC := keymap_$(KEYMAP).c $(SRC)
