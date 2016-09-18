@@ -5,6 +5,7 @@
 #include "util.h"
 #include "matrix.h"
 #include "wait.h"
+#include "backlight.h"
 
 #ifndef DEBOUNCE
 #   define DEBOUNCE 5
@@ -53,6 +54,22 @@ void matrix_init(void)
     debug_matrix = true;
     LED_ON();
     wait_ms(500);
+    LED_TGL();
+    wait_ms(50);
+    LED_TGL();
+    wait_ms(50);
+    LED_TGL();
+    wait_ms(50);
+    LED_TGL();
+    wait_ms(50);
+    LED_TGL();
+    wait_ms(50);
+    LED_TGL();
+    wait_ms(50);
+    LED_TGL();
+    wait_ms(50);
+    LED_TGL();
+    wait_ms(50);
     LED_OFF();
 }
 
@@ -148,4 +165,42 @@ static void select_row(uint8_t row)
             palClearPad(TEENSY_PIN3_IOPORT, TEENSY_PIN3);
             break;
     }
+}
+
+#define PWM_DRIVER PWMD1
+
+static void pwmpcb(PWMDriver *pwmp) {
+  (void)pwmp;
+  palSetPad(TEENSY_PIN23_IOPORT, TEENSY_PIN23);
+};
+
+static void pwmc0cb(PWMDriver *pwmp) {
+  (void)pwmp;
+  palClearPad(TEENSY_PIN23_IOPORT, TEENSY_PIN23);
+};
+
+static PWMConfig pwmcfg = {
+  24000000,           /* 24MHz PWM clock frequency. */
+  12000,              /* Initial PWM period 1ms (12000 clock ticks) */
+  pwmpcb,
+  {
+    {PWM_OUTPUT_DISABLED, pwmc0cb},
+    {PWM_OUTPUT_DISABLED, NULL}
+  }
+};
+
+void backlight_set(uint8_t level) {
+  /*
+   * Initialize the PWM driver.
+   */
+  pwmStart(&PWM_DRIVER, &pwmcfg);
+  pwmEnablePeriodicNotification(&PWM_DRIVER);
+
+  /*
+   * Starts the PWM channel 0; turn the LED off.
+   */
+  pwmEnableChannel(&PWM_DRIVER, 0, PWM_PERCENTAGE_TO_WIDTH(&PWM_DRIVER, 0));
+  pwmEnableChannelNotification(&PWM_DRIVER, 0); // MUST be before EnableChannel...
+
+  pwmEnableChannel(&PWM_DRIVER, 0, PWM_PERCENTAGE_TO_WIDTH(&PWM_DRIVER,5000));
 }
