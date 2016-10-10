@@ -1,4 +1,4 @@
-// #ifndef KEYMAP_COMMON_H
+#ifndef KEYMAP_COMMON_H
 #define KEYMAP_COMMON_H
 
 #include <stdint.h>
@@ -12,9 +12,6 @@
 #include "debug.h"
 #include "keymap.h"
 
-extern const uint8_t keymaps[][MATRIX_ROWS][MATRIX_COLS];
-extern const uint16_t fn_actions[];
-
 #define KEYMAP( \
     K00, K01, \
     K10, K11 \
@@ -23,3 +20,4 @@ extern const uint16_t fn_actions[];
     { KC_##K10, KC_##K11 } \
 }
 
+#endif

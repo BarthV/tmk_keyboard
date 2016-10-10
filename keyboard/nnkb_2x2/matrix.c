@@ -12,7 +12,18 @@
 #endif
 static uint8_t debouncing = DEBOUNCE;
 
+/*
+ * NNKB 2x2 Prototype Pinusage:
+ * Row pins are input with internal pull-down. Column pins are output and strobe with high.
+ * Key is high or 1 when it turns on.
+ *
+ *     col: { TEENSY_PIN0, TEENSY_PIN1 }
+ *     row: { TEENSY_PIN2, TEENSY_PIN3 }
+ *
+ * Backlight PWM pin : TEENSY_PIN23
+ */
 /* matrix state(1:on, 0:off) */
+
 static matrix_row_t matrix[MATRIX_ROWS];
 static matrix_row_t matrix_debouncing[MATRIX_ROWS];
 
@@ -40,138 +51,127 @@ uint8_t matrix_cols(void)
 
 void matrix_init(void)
 {
-    // initialize row and col
-    unselect_rows();
-    init_cols();
+  // initialize row and col
+  unselect_rows();
+  init_cols();
+  pwm_init();
+  // initialize matrix state: all keys off
+  for (uint8_t i=0; i < MATRIX_ROWS; i++) {
+    matrix[i] = 0;
+    matrix_debouncing[i] = 0;
+  }
 
-    // initialize matrix state: all keys off
-    for (uint8_t i=0; i < MATRIX_ROWS; i++) {
-        matrix[i] = 0;
-        matrix_debouncing[i] = 0;
-    }
-
-    //debug
-    debug_matrix = true;
-    LED_ON();
-    wait_ms(500);
-    LED_TGL();
-    wait_ms(50);
-    LED_TGL();
-    wait_ms(50);
-    LED_TGL();
-    wait_ms(50);
-    LED_TGL();
-    wait_ms(50);
-    LED_TGL();
-    wait_ms(50);
-    LED_TGL();
-    wait_ms(50);
-    LED_TGL();
-    wait_ms(50);
-    LED_TGL();
-    wait_ms(50);
-    LED_OFF();
+  //debug
+  debug_matrix = false;
 }
 
 uint8_t matrix_scan(void)
 {
-    for (uint8_t i = 0; i < MATRIX_ROWS; i++) {
-        select_row(i);
-        //wait_us(30);  // without this wait read unstable value.
-		for (uint8_t i=0; i < 1; i++) { // Loop for very short delay, wait_us is returning a 1ms delay
-			LED_TGL(); // toggle the onboard LED attached to pin 13
-		}
-        matrix_row_t cols = read_cols();
-        if (matrix_debouncing[i] != cols) {
-            matrix_debouncing[i] = cols;
-            if (debouncing) {
-                debug("bounce!: "); debug_hex(debouncing); debug("\n");
-            }
-            debouncing = DEBOUNCE;
-        }
-        unselect_rows();
+  for (uint8_t i = 0; i < MATRIX_ROWS; i++) {
+    select_row(i);
+    //wait_us(30);  // without this wait read unstable value.
+    for (uint8_t i=0; i < 1; i++) { // Loop for very short delay, wait_us is returning a 1ms delay
+      LED_TGL(); // toggle the onboard LED attached to pin 13
     }
-
-    if (debouncing) {
-        if (--debouncing) {
-            wait_ms(1);
-        } else {
-            for (uint8_t i = 0; i < MATRIX_ROWS; i++) {
-                matrix[i] = matrix_debouncing[i];
-            }
-        }
+    matrix_row_t cols = read_cols();
+    if (matrix_debouncing[i] != cols) {
+      matrix_debouncing[i] = cols;
+      if (debouncing) {
+        debug("bounce!: "); debug_hex(debouncing); debug("\n");
+      }
+      debouncing = DEBOUNCE;
     }
+    unselect_rows();
+  }
 
-    return 1;
+  if (debouncing) {
+    if (--debouncing) {
+      wait_ms(1);
+    } else {
+      for (uint8_t i = 0; i < MATRIX_ROWS; i++) {
+        matrix[i] = matrix_debouncing[i];
+      }
+    }
+  }
+  return 1;
 }
 
 inline
 bool matrix_is_on(uint8_t row, uint8_t col)
 {
-    return (matrix[row] & ((matrix_row_t)1<<col));
+  return (matrix[row] & ((matrix_row_t)1<<col));
 }
 
 inline
 matrix_row_t matrix_get_row(uint8_t row)
 {
-    return matrix[row];
+  return matrix[row];
 }
 
 void matrix_print(void)
 {
-    print("\nr/c 0123456789ABCDEF\n");
-    for (uint8_t row = 0; row < MATRIX_ROWS; row++) {
-        phex(row); print(": ");
-        pbin_reverse16(matrix_get_row(row));
-        print("\n");
-    }
+  print("\nr/c 0123456789ABCDEF\n");
+  for (uint8_t row = 0; row < MATRIX_ROWS; row++) {
+    phex(row); print(": ");
+    pbin_reverse16(matrix_get_row(row));
+    print("\n");
+  }
 }
 
 /* Column pin configuration
  */
 static void  init_cols(void)
 {
-    // internal pull-up
-    palSetPadMode(TEENSY_PIN0_IOPORT, TEENSY_PIN0, PAL_MODE_INPUT_PULLUP);
-    palSetPadMode(TEENSY_PIN1_IOPORT, TEENSY_PIN1, PAL_MODE_INPUT_PULLUP);
+  // internal pull-up
+  palSetPadMode(TEENSY_PIN0_IOPORT, TEENSY_PIN0, PAL_MODE_INPUT_PULLUP);
+  palSetPadMode(TEENSY_PIN1_IOPORT, TEENSY_PIN1, PAL_MODE_INPUT_PULLUP);
 }
 
 /* Returns status of switches(1:on, 0:off) */
 static matrix_row_t read_cols(void)
 {
-    return ((palReadPad(TEENSY_PIN0_IOPORT, TEENSY_PIN0)==PAL_HIGH) ? 0 : (1<<0))
-         | ((palReadPad(TEENSY_PIN1_IOPORT, TEENSY_PIN1)==PAL_HIGH) ? 0 : (1<<1));
+  return ((palReadPad(TEENSY_PIN0_IOPORT, TEENSY_PIN0)==PAL_HIGH) ? 0 : (1<<0))
+       | ((palReadPad(TEENSY_PIN1_IOPORT, TEENSY_PIN1)==PAL_HIGH) ? 0 : (1<<1));
 }
 
 /* Row pin configuration
  */
 static void unselect_rows(void)
 {
-    palSetPadMode(TEENSY_PIN2_IOPORT, TEENSY_PIN2, PAL_MODE_INPUT); // hi-Z
-    palSetPadMode(TEENSY_PIN3_IOPORT, TEENSY_PIN3, PAL_MODE_INPUT); // hi-Z
+  palSetPadMode(TEENSY_PIN2_IOPORT, TEENSY_PIN2, PAL_MODE_INPUT); // hi-Z
+  palSetPadMode(TEENSY_PIN3_IOPORT, TEENSY_PIN3, PAL_MODE_INPUT); // hi-Z
 }
 
 static void select_row(uint8_t row)
 {
-    (void)row;
-    // Output low to select
-    switch (row) {
-        case 0:
-            palSetPadMode(TEENSY_PIN2_IOPORT, TEENSY_PIN2, PAL_MODE_OUTPUT_PUSHPULL);
-            palClearPad(TEENSY_PIN2_IOPORT, TEENSY_PIN2);
-            break;
-        case 1:
-            palSetPadMode(TEENSY_PIN3_IOPORT, TEENSY_PIN3, PAL_MODE_OUTPUT_PUSHPULL);
-            palClearPad(TEENSY_PIN3_IOPORT, TEENSY_PIN3);
-            break;
-    }
+  (void)row;
+  // Output low to select
+  switch (row) {
+    case 0:
+      palSetPadMode(TEENSY_PIN2_IOPORT, TEENSY_PIN2, PAL_MODE_OUTPUT_PUSHPULL);
+      palClearPad(TEENSY_PIN2_IOPORT, TEENSY_PIN2);
+      break;
+    case 1:
+      palSetPadMode(TEENSY_PIN3_IOPORT, TEENSY_PIN3, PAL_MODE_OUTPUT_PUSHPULL);
+      palClearPad(TEENSY_PIN3_IOPORT, TEENSY_PIN3);
+      break;
+  }
 }
 
+/*
+ * PWM Driver Code 
+ */
+
 #define PWM_DRIVER PWMD1
+uint8_t currentBacklightLevel = 0;
 
 static void pwmpcb(PWMDriver *pwmp) {
   (void)pwmp;
-  palSetPad(TEENSY_PIN23_IOPORT, TEENSY_PIN23);
+  if (currentBacklightLevel == 0) {
+    palClearPad(TEENSY_PIN23_IOPORT, TEENSY_PIN23);
+  } else {
+    palSetPad(TEENSY_PIN23_IOPORT, TEENSY_PIN23);
+  }
 };
 
 static void pwmc0cb(PWMDriver *pwmp) {
@@ -181,26 +181,37 @@ static void pwmc0cb(PWMDriver *pwmp) {
 
 static PWMConfig pwmcfg = {
   24000000,           /* 24MHz PWM clock frequency. */
-  12000,              /* Initial PWM period 1ms (12000 clock ticks) */
+  24000,              /* Initial PWM period 1ms (24000 clock ticks) */
   pwmpcb,
   {
-    {PWM_OUTPUT_DISABLED, pwmc0cb},
+    {PWM_OUTPUT_ACTIVE_LOW, pwmc0cb},
     {PWM_OUTPUT_DISABLED, NULL}
   }
 };
 
-void backlight_set(uint8_t level) {
-  /*
-   * Initialize the PWM driver.
-   */
+void pwm_init(void) {
   pwmStart(&PWM_DRIVER, &pwmcfg);
-  pwmEnablePeriodicNotification(&PWM_DRIVER);
+}
 
-  /*
-   * Starts the PWM channel 0; turn the LED off.
-   */
-  pwmEnableChannel(&PWM_DRIVER, 0, PWM_PERCENTAGE_TO_WIDTH(&PWM_DRIVER, 0));
-  pwmEnableChannelNotification(&PWM_DRIVER, 0); // MUST be before EnableChannel...
-
-  pwmEnableChannel(&PWM_DRIVER, 0, PWM_PERCENTAGE_TO_WIDTH(&PWM_DRIVER,5000));
+void backlight_set(uint8_t level) {
+    pwmEnablePeriodicNotification(&PWM_DRIVER);
+  if (level == 0) {
+    currentBacklightLevel = 0;
+  } else if (level == 1) {
+    currentBacklightLevel = 1;
+    pwmEnableChannel(&PWM_DRIVER, 0, PWM_PERCENTAGE_TO_WIDTH(&PWM_DRIVER, 2500));
+    pwmEnableChannelNotification(&PWM_DRIVER, 0);
+  } else if (level == 2) {
+    currentBacklightLevel = 2;
+    pwmEnableChannel(&PWM_DRIVER, 0, PWM_PERCENTAGE_TO_WIDTH(&PWM_DRIVER, 5000));
+    pwmEnableChannelNotification(&PWM_DRIVER, 0);
+  } else if (level == 3) {
+    currentBacklightLevel = 3;
+    pwmEnableChannel(&PWM_DRIVER, 0, PWM_PERCENTAGE_TO_WIDTH(&PWM_DRIVER, 7500));
+    pwmEnableChannelNotification(&PWM_DRIVER, 0);
+  } else if (level == 4) {
+    currentBacklightLevel = 4;
+    pwmEnableChannel(&PWM_DRIVER, 0, PWM_PERCENTAGE_TO_WIDTH(&PWM_DRIVER, 10000));
+    pwmDisableChannelNotification(&PWM_DRIVER, 0);
+  }
 }
