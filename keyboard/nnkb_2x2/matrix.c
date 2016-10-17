@@ -20,6 +20,15 @@ static uint8_t debouncing = DEBOUNCE;
  *     col: { TEENSY_PIN0, TEENSY_PIN1 }
  *     row: { TEENSY_PIN2, TEENSY_PIN3 }
  *
+ *    Row
+ *     ^
+ *    2|
+ *     |
+ *     |
+ *     |
+ *    0+-----------> Col
+ *     0          2
+ *
  * Backlight PWM pin : TEENSY_PIN23
  */
 /* matrix state(1:on, 0:off) */
