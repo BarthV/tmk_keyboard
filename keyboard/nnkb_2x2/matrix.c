@@ -69,7 +69,7 @@ uint8_t matrix_scan(void)
 {
   for (uint8_t i = 0; i < MATRIX_ROWS; i++) {
     select_row(i);
-    //wait_us(30);  // without this wait read unstable value.
+    wait_us(10);  // without this wait read unstable value. (30us default)
     for (uint8_t i=0; i < 1; i++) { // Loop for very short delay, wait_us is returning a 1ms delay
       LED_TGL(); // toggle the onboard LED attached to pin 13
     }
