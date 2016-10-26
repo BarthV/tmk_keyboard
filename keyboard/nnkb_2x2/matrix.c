@@ -64,6 +64,7 @@ void matrix_init(void)
   unselect_rows();
   init_cols();
   pwm_init();
+  rgb_init();
   // initialize matrix state: all keys off
   for (uint8_t i=0; i < MATRIX_ROWS; i++) {
     matrix[i] = 0;
@@ -224,3 +225,45 @@ void backlight_set(uint8_t level) {
     pwmDisableChannelNotification(&PWM_DRIVER, 0);
   }
 }
+
+/* RGB Driver */
+#define RGB_DRIVER PWMD2
+
+static void rgbpcb(PWMDriver *pwmp) {
+  (void)pwmp;
+  palSetPad(TEENSY_PIN20_IOPORT, TEENSY_PIN20);
+  palSetPad(TEENSY_PIN21_IOPORT, TEENSY_PIN21);
+  palSetPad(TEENSY_PIN22_IOPORT, TEENSY_PIN22);
+};
+
+static void rgbc0cb(PWMDriver *pwmp) {
+  (void)pwmp;
+  palClearPad(TEENSY_PIN20_IOPORT, TEENSY_PIN20);
+};
+
+static void rgbc1cb(PWMDriver *pwmp) {
+  (void)pwmp;
+  palClearPad(TEENSY_PIN21_IOPORT, TEENSY_PIN21);
+};
+
+static void rgbc2cb(PWMDriver *pwmp) {
+  (void)pwmp;
+  palClearPad(TEENSY_PIN22_IOPORT, TEENSY_PIN22);
+};
+
+static PWMConfig rgbcfg = {
+  24000000,           /* 24MHz PWM clock frequency. */
+  24000,              /* Initial PWM period 1ms (24000 clock ticks) */
+  rgbpcb,
+  {
+    {PWM_OUTPUT_DISABLED, rgbc0cb},
+    {PWM_OUTPUT_DISABLED, rgbc1cb},
+    {PWM_OUTPUT_DISABLED, rgbc2cb}
+  }
+};
+
+void rgb_init(void) {
+    pwmStart(&RGB_DRIVER, &rgbcfg);
+}
+
+
