@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "debug.h"
 
 backlight_config_t backlight_config;
+rgb_config_t rgb_config;
 
 void backlight_init(void)
 {
@@ -29,6 +30,23 @@ void backlight_init(void)
     }
     backlight_config.raw = eeconfig_read_backlight();
     backlight_set(backlight_config.enable ? backlight_config.level : 0);
+}
+
+void rgb_init(void)
+{
+    /* check signature */
+    if (!eeconfig_is_enabled()) {
+        eeconfig_init();
+    }
+    rgb_config.raw = eeconfig_read_rgb();
+    if (rgb_config.enable)
+    {
+        rgb_set(rgb_config.redlevel, rgb_config.greenlevel, rgb_config.bluelevel);
+    } else
+    {
+        rgb_config.enable = 0;
+        rgb_set(0,0,0);
+    }
 }
 
 void backlight_increase(void)
@@ -82,4 +100,57 @@ void backlight_level(uint8_t level)
     backlight_config.enable = !!backlight_config.level;
     eeconfig_write_backlight(backlight_config.raw);
     backlight_set(backlight_config.level);
+}
+
+void rgb_toggle(void)
+{
+    rgb_config.enable ^= 1;
+    eeconfig_write_rgb(rgb_config.raw);
+    dprintf("rgb toggle: %u\n", rgb_config.enable);
+    if (rgb_config.enable)
+    {
+      rgb_set(rgb_config.redlevel, rgb_config.greenlevel, rgb_config.bluelevel);
+    } else
+    {
+      rgb_set(0,0,0);
+    }
+}
+
+void rgb_red_step(void)
+{
+    rgb_config.redlevel += 10;
+    if(rgb_config.redlevel > 100)
+    {
+        rgb_config.redlevel = 0;
+    }
+    rgb_config.enable = !!rgb_config.redlevel || !!rgb_config.greenlevel || !!rgb_config.bluelevel;
+    eeconfig_write_rgb(rgb_config.raw);
+    dprintf("rgb RED step: %u\n", rgb_config.redlevel);
+    rgb_set(rgb_config.redlevel, rgb_config.greenlevel, rgb_config.bluelevel);
+}
+
+void rgb_green_step(void)
+{
+    rgb_config.greenlevel += 10;
+    if(rgb_config.greenlevel > 100)
+    {
+        rgb_config.greenlevel = 0;
+    }
+    rgb_config.enable = !!rgb_config.redlevel || !!rgb_config.greenlevel || !!rgb_config.bluelevel;
+    eeconfig_write_rgb(rgb_config.raw);
+    dprintf("rgb GREEN step: %u\n", rgb_config.greenlevel);
+    rgb_set(rgb_config.redlevel, rgb_config.greenlevel, rgb_config.bluelevel);
+}
+
+void rgb_blue_step(void)
+{
+    rgb_config.bluelevel += 10;
+    if(rgb_config.bluelevel > 100)
+    {
+        rgb_config.bluelevel = 0;
+    }
+    rgb_config.enable = !!rgb_config.redlevel || !!rgb_config.greenlevel || !!rgb_config.bluelevel;
+    eeconfig_write_rgb(rgb_config.raw);
+    dprintf("rgb BLUE step: %u\n", rgb_config.bluelevel);
+    rgb_set(rgb_config.redlevel, rgb_config.greenlevel, rgb_config.bluelevel);
 }

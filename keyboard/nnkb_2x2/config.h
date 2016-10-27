@@ -52,7 +52,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 )
 
 /* number of backlight levels */
-#define BACKLIGHT_LEVELS 4
+#define BACKLIGHT_LEVELS 5
 
 /*
  * Feature disable options

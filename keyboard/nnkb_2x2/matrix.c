@@ -64,6 +64,7 @@ void matrix_init(void)
   unselect_rows();
   init_cols();
   pwm_init();
+  rgb_init();
   // initialize matrix state: all keys off
   for (uint8_t i=0; i < MATRIX_ROWS; i++) {
     matrix[i] = 0;
@@ -244,32 +245,32 @@ void pwm_init(void) {
   pwmStart(&PWM_DRIVER, &pwmcfg);
 }
 
-void set_RGB(uint16_t red, uint16_t green, uint16_t blue) {
+void rgb_set(uint8_t red, uint8_t green, uint8_t blue) {
     if (red == 0) {
       currentRlevel=0;
     } else {
       currentRlevel=red;
-      pwmEnableChannel(&PWM_DRIVER, 1, PWM_PERCENTAGE_TO_WIDTH(&PWM_DRIVER, red));
+      pwmEnableChannel(&PWM_DRIVER, 1, PWM_PERCENTAGE_TO_WIDTH(&PWM_DRIVER, red * 100));
       pwmEnableChannelNotification(&PWM_DRIVER, 1);
     }
     if (green == 0) {
       currentGlevel=0;
     } else {
       currentGlevel=green;
-      pwmEnableChannel(&PWM_DRIVER, 2, PWM_PERCENTAGE_TO_WIDTH(&PWM_DRIVER, green));
+      pwmEnableChannel(&PWM_DRIVER, 2, PWM_PERCENTAGE_TO_WIDTH(&PWM_DRIVER, green * 100));
       pwmEnableChannelNotification(&PWM_DRIVER, 2);
     }
     if (blue == 0) {
       currentBlevel=0;
     } else {
       currentBlevel=blue;
-      pwmEnableChannel(&PWM_DRIVER, 3, PWM_PERCENTAGE_TO_WIDTH(&PWM_DRIVER, blue));
+      pwmEnableChannel(&PWM_DRIVER, 3, PWM_PERCENTAGE_TO_WIDTH(&PWM_DRIVER, blue * 100));
       pwmEnableChannelNotification(&PWM_DRIVER, 3);
     }
 }
 
-void set_SWBKL(uint8_t level, uint16_t brightness) {
-  currentBacklightLevel = level
+void set_bkl(uint8_t level, uint16_t brightness) {
+  currentBacklightLevel = level;
   if (level != 0) {
     pwmEnableChannel(&PWM_DRIVER, 0, PWM_PERCENTAGE_TO_WIDTH(&PWM_DRIVER, brightness));
     pwmEnableChannelNotification(&PWM_DRIVER, 0);
@@ -279,19 +280,16 @@ void set_SWBKL(uint8_t level, uint16_t brightness) {
 void backlight_set(uint8_t level) {
     pwmEnablePeriodicNotification(&PWM_DRIVER);
   if (level == 0) {
-    set_SWBKL(level, 0)
-    set_RGB(500, 0, 0);
+    set_bkl(level, 0);
   } else if (level == 1) {
-    set_SWBKL(level, 2500)
-    set_RGB(0, 500, 0);
+    set_bkl(level, 2000);
   } else if (level == 2) {
-    set_SWBKL(level, 5000)
-    set_RGB(0, 0, 500);
+    set_bkl(level, 4000);
   } else if (level == 3) {
-    set_SWBKL(level, 7500)
-    set_RGB(500, 500, 0);
+    set_bkl(level, 6000);
   } else if (level == 4) {
-    set_SWBKL(level, 10000)
-    set_RGB(0, 500, 500);
+    set_bkl(level, 8000);
+  } else if (level == 5) {
+    set_bkl(level, 10000);
   }
 }

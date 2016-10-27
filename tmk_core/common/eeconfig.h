@@ -31,6 +31,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define EECONFIG_KEYMAP                             (uint8_t *)4
 #define EECONFIG_MOUSEKEY_ACCEL                     (uint8_t *)5
 #define EECONFIG_BACKLIGHT                          (uint8_t *)6
+#define EECONFIG_RGB                                (uint32_t *)7
 
 
 /* debug bit */
@@ -70,6 +71,8 @@ void eeconfig_write_keymap(uint8_t val);
 #ifdef BACKLIGHT_ENABLE
 uint8_t eeconfig_read_backlight(void);
 void eeconfig_write_backlight(uint8_t val);
+uint32_t eeconfig_read_rgb(void);
+void eeconfig_write_rgb(uint32_t val);
 #endif
 
 #endif

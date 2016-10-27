@@ -330,6 +330,18 @@ void process_action(keyrecord_t *record)
                     case BACKLIGHT_LEVEL:
                         backlight_level(action.backlight.level);
                         break;
+                    case RGB_TOGGLE:
+                        rgb_toggle();
+                        break;
+                    case RGB_RED_STEP:
+                        rgb_red_step();
+                        break;
+                    case RGB_GREEN_STEP:
+                        rgb_green_step();
+                        break;
+                    case RGB_BLUE_STEP:
+                        rgb_blue_step();
+                        break;
                 }
             }
             break;

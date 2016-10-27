@@ -292,6 +292,10 @@ enum backlight_opt {
     BACKLIGHT_TOGGLE   = 2,
     BACKLIGHT_STEP     = 3,
     BACKLIGHT_LEVEL    = 4,
+    RGB_TOGGLE         = 5,
+    RGB_RED_STEP       = 6,
+    RGB_GREEN_STEP     = 7,
+    RGB_BLUE_STEP      = 8,
 };
 /* Macro */
 #define ACTION_MACRO(id)                ACTION(ACT_MACRO, (id))
@@ -303,6 +307,10 @@ enum backlight_opt {
 #define ACTION_BACKLIGHT_TOGGLE()       ACTION(ACT_BACKLIGHT, BACKLIGHT_TOGGLE << 8)
 #define ACTION_BACKLIGHT_STEP()         ACTION(ACT_BACKLIGHT, BACKLIGHT_STEP << 8)
 #define ACTION_BACKLIGHT_LEVEL(level)   ACTION(ACT_BACKLIGHT, BACKLIGHT_LEVEL << 8 | level)
+#define ACTION_RGB_TOGGLE()             ACTION(ACT_BACKLIGHT, RGB_TOGGLE << 8)
+#define ACTION_RGB_RED_STEP()           ACTION(ACT_BACKLIGHT, RGB_RED_STEP << 8)
+#define ACTION_RGB_GREEN_STEP()         ACTION(ACT_BACKLIGHT, RGB_GREEN_STEP << 8)
+#define ACTION_RGB_BLUE_STEP()          ACTION(ACT_BACKLIGHT, RGB_BLUE_STEP << 8)
 /* Command */
 #define ACTION_COMMAND(id, opt)         ACTION(ACT_COMMAND,  (opt)<<8 | (addr))
 /* Function */

@@ -29,6 +29,17 @@ typedef union {
     };
 } backlight_config_t;
 
+typedef union {
+    uint32_t raw;
+    struct {
+        bool     enable :1;
+        uint8_t  _unused  :7;
+        uint8_t redlevel;
+        uint8_t greenlevel;
+        uint8_t bluelevel;
+    };
+} rgb_config_t;
+
 void backlight_init(void);
 void backlight_increase(void);
 void backlight_decrease(void);
@@ -36,5 +47,11 @@ void backlight_toggle(void);
 void backlight_step(void);
 void backlight_set(uint8_t level);
 void backlight_level(uint8_t level);
+
+void rgb_toggle(void);
+void rgb_set(uint8_t red, uint8_t green, uint8_t blue);
+void rgb_red_step(void);
+void rgb_green_step(void);
+void rgb_blue_step(void);
 
 #endif
