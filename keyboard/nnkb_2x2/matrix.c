@@ -64,7 +64,6 @@ void matrix_init(void)
   unselect_rows();
   init_cols();
   pwm_init();
-  rgb_init();
   // initialize matrix state: all keys off
   for (uint8_t i=0; i < MATRIX_ROWS; i++) {
     matrix[i] = 0;
@@ -174,6 +173,10 @@ static void select_row(uint8_t row)
 
 #define PWM_DRIVER PWMD1
 uint8_t currentBacklightLevel = 0;
+bool RGB_enabled = true;
+uint16_t currentRlevel = 0;
+uint16_t currentGlevel = 0;
+uint16_t currentBlevel = 0;
 
 static void pwmpcb(PWMDriver *pwmp) {
   (void)pwmp;
@@ -182,58 +185,32 @@ static void pwmpcb(PWMDriver *pwmp) {
   } else {
     palSetPad(TEENSY_PIN23_IOPORT, TEENSY_PIN23);
   }
+  if (RGB_enabled == false) {
+    palClearPad(TEENSY_PIN20_IOPORT, TEENSY_PIN20);
+    palClearPad(TEENSY_PIN21_IOPORT, TEENSY_PIN21);
+    palClearPad(TEENSY_PIN22_IOPORT, TEENSY_PIN22);
+  } else {
+    if (currentRlevel == 0) {
+      palClearPad(TEENSY_PIN20_IOPORT, TEENSY_PIN20);
+    } else {
+      palSetPad(TEENSY_PIN20_IOPORT, TEENSY_PIN20);
+    }
+    if (currentGlevel == 0) {
+      palClearPad(TEENSY_PIN21_IOPORT, TEENSY_PIN21);
+    } else {
+      palSetPad(TEENSY_PIN21_IOPORT, TEENSY_PIN21);
+    }
+    if (currentBlevel == 0) {
+      palClearPad(TEENSY_PIN22_IOPORT, TEENSY_PIN22);
+    } else {
+      palSetPad(TEENSY_PIN22_IOPORT, TEENSY_PIN22);
+    }
+  }
 };
 
-static void pwmc0cb(PWMDriver *pwmp) {
+static void bckc0cb(PWMDriver *pwmp) {
   (void)pwmp;
   palClearPad(TEENSY_PIN23_IOPORT, TEENSY_PIN23);
-};
-
-static PWMConfig pwmcfg = {
-  24000000,           /* 24MHz PWM clock frequency. */
-  24000,              /* Initial PWM period 1ms (24000 clock ticks) */
-  pwmpcb,
-  {
-    {PWM_OUTPUT_ACTIVE_LOW, pwmc0cb},
-    {PWM_OUTPUT_DISABLED, NULL}
-  }
-};
-
-void pwm_init(void) {
-  pwmStart(&PWM_DRIVER, &pwmcfg);
-}
-
-void backlight_set(uint8_t level) {
-    pwmEnablePeriodicNotification(&PWM_DRIVER);
-  if (level == 0) {
-    currentBacklightLevel = 0;
-  } else if (level == 1) {
-    currentBacklightLevel = 1;
-    pwmEnableChannel(&PWM_DRIVER, 0, PWM_PERCENTAGE_TO_WIDTH(&PWM_DRIVER, 2500));
-    pwmEnableChannelNotification(&PWM_DRIVER, 0);
-  } else if (level == 2) {
-    currentBacklightLevel = 2;
-    pwmEnableChannel(&PWM_DRIVER, 0, PWM_PERCENTAGE_TO_WIDTH(&PWM_DRIVER, 5000));
-    pwmEnableChannelNotification(&PWM_DRIVER, 0);
-  } else if (level == 3) {
-    currentBacklightLevel = 3;
-    pwmEnableChannel(&PWM_DRIVER, 0, PWM_PERCENTAGE_TO_WIDTH(&PWM_DRIVER, 7500));
-    pwmEnableChannelNotification(&PWM_DRIVER, 0);
-  } else if (level == 4) {
-    currentBacklightLevel = 4;
-    pwmEnableChannel(&PWM_DRIVER, 0, PWM_PERCENTAGE_TO_WIDTH(&PWM_DRIVER, 10000));
-    pwmDisableChannelNotification(&PWM_DRIVER, 0);
-  }
-}
-
-/* RGB Driver */
-#define RGB_DRIVER PWMD2
-
-static void rgbpcb(PWMDriver *pwmp) {
-  (void)pwmp;
-  palSetPad(TEENSY_PIN20_IOPORT, TEENSY_PIN20);
-  palSetPad(TEENSY_PIN21_IOPORT, TEENSY_PIN21);
-  palSetPad(TEENSY_PIN22_IOPORT, TEENSY_PIN22);
 };
 
 static void rgbc0cb(PWMDriver *pwmp) {
@@ -251,19 +228,70 @@ static void rgbc2cb(PWMDriver *pwmp) {
   palClearPad(TEENSY_PIN22_IOPORT, TEENSY_PIN22);
 };
 
-static PWMConfig rgbcfg = {
+static PWMConfig pwmcfg = {
   24000000,           /* 24MHz PWM clock frequency. */
   24000,              /* Initial PWM period 1ms (24000 clock ticks) */
-  rgbpcb,
+  pwmpcb,
   {
+    {PWM_OUTPUT_DISABLED, bckc0cb},
     {PWM_OUTPUT_DISABLED, rgbc0cb},
     {PWM_OUTPUT_DISABLED, rgbc1cb},
     {PWM_OUTPUT_DISABLED, rgbc2cb}
   }
 };
 
-void rgb_init(void) {
-    pwmStart(&RGB_DRIVER, &rgbcfg);
+void pwm_init(void) {
+  pwmStart(&PWM_DRIVER, &pwmcfg);
 }
 
+void set_RGB(uint16_t red, uint16_t green, uint16_t blue) {
+    if (red == 0) {
+      currentRlevel=0;
+    } else {
+      currentRlevel=red;
+      pwmEnableChannel(&PWM_DRIVER, 1, PWM_PERCENTAGE_TO_WIDTH(&PWM_DRIVER, red));
+      pwmEnableChannelNotification(&PWM_DRIVER, 1);
+    }
+    if (green == 0) {
+      currentGlevel=0;
+    } else {
+      currentGlevel=green;
+      pwmEnableChannel(&PWM_DRIVER, 2, PWM_PERCENTAGE_TO_WIDTH(&PWM_DRIVER, green));
+      pwmEnableChannelNotification(&PWM_DRIVER, 2);
+    }
+    if (blue == 0) {
+      currentBlevel=0;
+    } else {
+      currentBlevel=blue;
+      pwmEnableChannel(&PWM_DRIVER, 3, PWM_PERCENTAGE_TO_WIDTH(&PWM_DRIVER, blue));
+      pwmEnableChannelNotification(&PWM_DRIVER, 3);
+    }
+}
 
+void set_SWBKL(uint8_t level, uint16_t brightness) {
+  currentBacklightLevel = level
+  if (level != 0) {
+    pwmEnableChannel(&PWM_DRIVER, 0, PWM_PERCENTAGE_TO_WIDTH(&PWM_DRIVER, brightness));
+    pwmEnableChannelNotification(&PWM_DRIVER, 0);
+  }
+}
+
+void backlight_set(uint8_t level) {
+    pwmEnablePeriodicNotification(&PWM_DRIVER);
+  if (level == 0) {
+    set_SWBKL(level, 0)
+    set_RGB(500, 0, 0);
+  } else if (level == 1) {
+    set_SWBKL(level, 2500)
+    set_RGB(0, 500, 0);
+  } else if (level == 2) {
+    set_SWBKL(level, 5000)
+    set_RGB(0, 0, 500);
+  } else if (level == 3) {
+    set_SWBKL(level, 7500)
+    set_RGB(500, 500, 0);
+  } else if (level == 4) {
+    set_SWBKL(level, 10000)
+    set_RGB(0, 500, 500);
+  }
+}
