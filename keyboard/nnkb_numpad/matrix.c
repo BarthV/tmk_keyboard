@@ -172,19 +172,19 @@ static void select_row(uint8_t row)
       palSetPadMode(TEENSY_PIN5_IOPORT, TEENSY_PIN5, PAL_MODE_OUTPUT_PUSHPULL);
       palClearPad(TEENSY_PIN5_IOPORT, TEENSY_PIN5);
       break;
-    case 1:
+    case 2:
       palSetPadMode(TEENSY_PIN6_IOPORT, TEENSY_PIN6, PAL_MODE_OUTPUT_PUSHPULL);
       palClearPad(TEENSY_PIN6_IOPORT, TEENSY_PIN6);
       break;
-    case 1:
+    case 3:
       palSetPadMode(TEENSY_PIN7_IOPORT, TEENSY_PIN7, PAL_MODE_OUTPUT_PUSHPULL);
       palClearPad(TEENSY_PIN7_IOPORT, TEENSY_PIN7);
       break;
-    case 1:
+    case 4:
       palSetPadMode(TEENSY_PIN8_IOPORT, TEENSY_PIN8, PAL_MODE_OUTPUT_PUSHPULL);
       palClearPad(TEENSY_PIN8_IOPORT, TEENSY_PIN8);
       break;
-    case 1:
+    case 5:
       palSetPadMode(TEENSY_PIN9_IOPORT, TEENSY_PIN9, PAL_MODE_OUTPUT_PUSHPULL);
       palClearPad(TEENSY_PIN9_IOPORT, TEENSY_PIN9);
       break;
@@ -270,4 +270,5 @@ void backlight_set(uint8_t level) {
     currentBacklightLevel = 10;
     pwmEnableChannel(&PWM_DRIVER, 0, PWM_PERCENTAGE_TO_WIDTH(&PWM_DRIVER, 10000));
     pwmEnableChannelNotification(&PWM_DRIVER, 0);
+  }
 }
