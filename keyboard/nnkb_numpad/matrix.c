@@ -232,43 +232,43 @@ void backlight_set(uint8_t level) {
     currentBacklightLevel = 0;
   } else if (level == 1) {
     currentBacklightLevel = 1;
-    pwmEnableChannel(&PWM_DRIVER, 0, PWM_PERCENTAGE_TO_WIDTH(&PWM_DRIVER, 1000));
+    pwmEnableChannel(&PWM_DRIVER, 0, PWM_PERCENTAGE_TO_WIDTH(&PWM_DRIVER, 200));
     pwmEnableChannelNotification(&PWM_DRIVER, 0);
   } else if (level == 2) {
     currentBacklightLevel = 2;
-    pwmEnableChannel(&PWM_DRIVER, 0, PWM_PERCENTAGE_TO_WIDTH(&PWM_DRIVER, 2000));
+    pwmEnableChannel(&PWM_DRIVER, 0, PWM_PERCENTAGE_TO_WIDTH(&PWM_DRIVER, 500));
     pwmEnableChannelNotification(&PWM_DRIVER, 0);
   } else if (level == 3) {
     currentBacklightLevel = 3;
-    pwmEnableChannel(&PWM_DRIVER, 0, PWM_PERCENTAGE_TO_WIDTH(&PWM_DRIVER, 3000));
+    pwmEnableChannel(&PWM_DRIVER, 0, PWM_PERCENTAGE_TO_WIDTH(&PWM_DRIVER, 1000));
     pwmEnableChannelNotification(&PWM_DRIVER, 0);
   } else if (level == 4) {
     currentBacklightLevel = 4;
-    pwmEnableChannel(&PWM_DRIVER, 0, PWM_PERCENTAGE_TO_WIDTH(&PWM_DRIVER, 4000));
-    pwmDisableChannelNotification(&PWM_DRIVER, 0);
+    pwmEnableChannel(&PWM_DRIVER, 0, PWM_PERCENTAGE_TO_WIDTH(&PWM_DRIVER, 1500));
+    pwmEnableChannelNotification(&PWM_DRIVER, 0);
   } else if (level == 5) {
     currentBacklightLevel = 5;
-    pwmEnableChannel(&PWM_DRIVER, 0, PWM_PERCENTAGE_TO_WIDTH(&PWM_DRIVER, 5000));
+    pwmEnableChannel(&PWM_DRIVER, 0, PWM_PERCENTAGE_TO_WIDTH(&PWM_DRIVER, 2000));
     pwmEnableChannelNotification(&PWM_DRIVER, 0);
   } else if (level == 6) {
     currentBacklightLevel = 6;
-    pwmEnableChannel(&PWM_DRIVER, 0, PWM_PERCENTAGE_TO_WIDTH(&PWM_DRIVER, 6000));
+    pwmEnableChannel(&PWM_DRIVER, 0, PWM_PERCENTAGE_TO_WIDTH(&PWM_DRIVER, 3000));
     pwmEnableChannelNotification(&PWM_DRIVER, 0);
   } else if (level == 7) {
     currentBacklightLevel = 7;
-    pwmEnableChannel(&PWM_DRIVER, 0, PWM_PERCENTAGE_TO_WIDTH(&PWM_DRIVER, 7000));
+    pwmEnableChannel(&PWM_DRIVER, 0, PWM_PERCENTAGE_TO_WIDTH(&PWM_DRIVER, 4000));
     pwmEnableChannelNotification(&PWM_DRIVER, 0);
   } else if (level == 8) {
     currentBacklightLevel = 8;
-    pwmEnableChannel(&PWM_DRIVER, 0, PWM_PERCENTAGE_TO_WIDTH(&PWM_DRIVER, 8000));
+    pwmEnableChannel(&PWM_DRIVER, 0, PWM_PERCENTAGE_TO_WIDTH(&PWM_DRIVER, 6500));
     pwmEnableChannelNotification(&PWM_DRIVER, 0);
   } else if (level == 9) {
     currentBacklightLevel = 9;
-    pwmEnableChannel(&PWM_DRIVER, 0, PWM_PERCENTAGE_TO_WIDTH(&PWM_DRIVER, 9000));
+    pwmEnableChannel(&PWM_DRIVER, 0, PWM_PERCENTAGE_TO_WIDTH(&PWM_DRIVER, 8000));
     pwmEnableChannelNotification(&PWM_DRIVER, 0);
   } else if (level == 10) {
     currentBacklightLevel = 10;
     pwmEnableChannel(&PWM_DRIVER, 0, PWM_PERCENTAGE_TO_WIDTH(&PWM_DRIVER, 10000));
-    pwmEnableChannelNotification(&PWM_DRIVER, 0);
+    pwmDisableChannelNotification(&PWM_DRIVER, 0);
   }
 }

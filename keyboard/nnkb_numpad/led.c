@@ -28,7 +28,7 @@ void led_set(uint8_t usb_led) {
     } else {
         // Hi-Z
         ////palSetPadMode(TEENSY_PIN13_IOPORT, TEENSY_PIN13, PAL_MODE_INPUT);
-        palSetPadMode(TEENSY_PIN22_IOPORT, TEENSY_PIN22, PAL_MODE_OUTPUT_OPENDRAIN);
+        palSetPadMode(TEENSY_PIN22_IOPORT, TEENSY_PIN22, PAL_MODE_INPUT);
         palClearPad(TEENSY_PIN22_IOPORT, TEENSY_PIN22);
     }
 }
